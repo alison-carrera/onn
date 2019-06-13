@@ -1,1 +1,1 @@
-# onn
+# Online Neural Network (ONN)
