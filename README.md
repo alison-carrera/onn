@@ -9,7 +9,25 @@ pip install onn
 
 ## How to use
 ```python
+#Importing Library
+from onn.OnlineNeuralNetwork import ONN
 
+#Starting a neural network with feature size of 2, hidden layers expansible until 5, number of neuron per hidden layer = 10 #and two classes.
+onn_network = ONN(features_size=2, max_num_hidden_layers=5, qtd_neuron_per_hidden_layer=10, n_classes=2)
+
+#Do a partial training
+onn_network.partial_fit(np.asarray([[0.1, 0.2]]), np.asarray([0]))
+onn_network.partial_fit(np.asarray([[0.8, 0.5]]), np.asarray([1]))
+
+#Predict classes
+predictions = onn_network.predict(np.asarray([[0.1, 0.2], [0.8, 0.5]]))
+
+Predictions -> qarray([1, 1])
+
+#Predict classes probabilities
+predictions = onn_network.predict_proba(np.asarray([[0.1, 0.2], [0.8, 0.5]]))
+
+Predictions -> array([[0.5048331 , 0.50083154],[0.49516693, 0.49916846]], dtype=float32)
 ```
 
 ## New features
