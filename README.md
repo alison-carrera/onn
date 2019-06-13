@@ -7,6 +7,11 @@ This is a Pytorch implementation of the [Online Deep Learning: Learning Deep Neu
 pip install onn
 ```
 
+## How to use
+```python
+
+```
+
 ## New features
 
 - The algortihm works with batch now. (It is not recommended because this is an online approach. It is useful for experimentation.)
