@@ -22,12 +22,12 @@ onn_network.partial_fit(np.asarray([[0.8, 0.5]]), np.asarray([1]))
 #Predict classes
 predictions = onn_network.predict(np.asarray([[0.1, 0.2], [0.8, 0.5]]))
 
-Predictions -> qarray([1, 1])
+Predictions -- array([1, 1])
 
 #Predict classes probabilities
 predictions = onn_network.predict_proba(np.asarray([[0.1, 0.2], [0.8, 0.5]]))
 
-Predictions -> array([[0.5048331 , 0.50083154],[0.49516693, 0.49916846]], dtype=float32)
+Predictions -- array([[0.5048331 , 0.50083154],[0.49516693, 0.49916846]], dtype=float32)
 ```
 
 ## New features
