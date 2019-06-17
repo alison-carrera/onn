@@ -127,22 +127,19 @@ class ONN():
         if len(data.shape) != 1:
             raise Exception("Wrong dimension for this Y data. It should have only one dimensions.")
 
-    def partial_fit(self, X_data, Y_data, show_loss=True):
+    def partial_fit_(self, X_data, Y_data, show_loss=True):
         self.validate_input_X(X_data)
         self.validate_input_Y(Y_data)
         self.update_weights(X_data, Y_data, show_loss)
 
-    def predict_proba(self, X_data):
-        self.validate_input_X(X_data)
-        result = torch.softmax(
-            torch.sum(torch.mul(
-                self.alpha.view(self.max_num_hidden_layers, 1).repeat(1, len(X_data)).view(
-                    self.max_num_hidden_layers, len(X_data), 1), self.forward(X_data)), 0), 0)
-        result[torch.isnan(result)] = 0
-        return result.data.cpu().numpy()
+    def partial_fit(self, X_data, Y_data, show_loss=True):
+        self.partial_fit_(X_data, Y_data, show_loss)
 
-    def predict(self, X_data):
+    def predict_(self, X_data):
         self.validate_input_X(X_data)
         return torch.argmax(torch.sum(torch.mul(
             self.alpha.view(self.max_num_hidden_layers, 1).repeat(1, len(X_data)).view(
                 self.max_num_hidden_layers, len(X_data), 1), self.forward(X_data)), 0), dim=1).cpu().numpy()
+
+    def predict(self, X_data):
+        return self.predict_(X_data)

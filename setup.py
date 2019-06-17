@@ -6,7 +6,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='onn',
-      version='0.0.5',
+      version='0.0.6',
       description='Online Neural Network',
       url='https://github.com/alison-carrera/onn',
       author='Alison Carrera',
