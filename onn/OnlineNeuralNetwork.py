@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.parameter import Parameter
 
 
-class ONN():
+class ONN(nn.Module):
     def __init__(self, features_size, max_num_hidden_layers, qtd_neuron_per_hidden_layer, n_classes, batch_size=1,
                  b=0.99, n=0.01, s=0.2, use_cuda=False):
         super(ONN, self).__init__()
@@ -18,9 +19,9 @@ class ONN():
         self.qtd_neuron_per_hidden_layer = qtd_neuron_per_hidden_layer
         self.n_classes = n_classes
         self.batch_size = batch_size
-        self.b = torch.tensor(b).to(self.device)
-        self.n = torch.tensor(n).to(self.device)
-        self.s = torch.tensor(s).to(self.device)
+        self.b = Parameter(torch.tensor(b)).to(self.device)
+        self.n = Parameter(torch.tensor(n)).to(self.device)
+        self.s = Parameter(torch.tensor(s)).to(self.device)
 
         self.hidden_layers = []
         self.output_layers = []
@@ -36,7 +37,7 @@ class ONN():
         self.hidden_layers = nn.ModuleList(self.hidden_layers).to(self.device)
         self.output_layers = nn.ModuleList(self.output_layers).to(self.device)
 
-        self.alpha = torch.Tensor(self.max_num_hidden_layers).fill_(1 / (self.max_num_hidden_layers + 1)).to(
+        self.alpha = Parameter(torch.Tensor(self.max_num_hidden_layers).fill_(1 / (self.max_num_hidden_layers + 1))).to(
             self.device)
 
         self.loss_array = []
@@ -82,7 +83,7 @@ class ONN():
 
         z_t = torch.sum(self.alpha)
 
-        self.alpha = self.alpha / z_t
+        self.alpha = Parameter(self.alpha / z_t).to(self.device)
 
         if show_loss:
             real_output = torch.sum(torch.mul(
