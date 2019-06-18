@@ -150,7 +150,7 @@ class ONN(nn.Module):
 
     def predict(self, X_data):
         pred = self.predict_(X_data)
-        if self.use_exploration and np.random.uniform() < self.e:
+        if self.use_exploration and np.random.uniform() < self.e and pred.shape[0] == 1:
             removed_arms = self.arms_values.copy()
             removed_arms.remove(pred)
             return random.choice(removed_arms)
