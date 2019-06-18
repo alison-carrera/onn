@@ -1,3 +1,6 @@
+import random
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -6,7 +9,7 @@ from torch.nn.parameter import Parameter
 
 class ONN(nn.Module):
     def __init__(self, features_size, max_num_hidden_layers, qtd_neuron_per_hidden_layer, n_classes, batch_size=1,
-                 b=0.99, n=0.01, s=0.2, use_cuda=False):
+                 b=0.99, n=0.01, s=0.2, e=0.5, use_cuda=False, use_exploration=False):
         super(ONN, self).__init__()
 
         if torch.cuda.is_available() and use_cuda:
@@ -22,6 +25,9 @@ class ONN(nn.Module):
         self.b = Parameter(torch.tensor(b)).to(self.device)
         self.n = Parameter(torch.tensor(n)).to(self.device)
         self.s = Parameter(torch.tensor(s)).to(self.device)
+        self.e = Parameter(torch.tensor(e)).to(self.device)
+        self.arms_values = np.arange(n_classes).tolist()
+        self.use_exploration = use_exploration
 
         self.hidden_layers = []
         self.output_layers = []
@@ -143,4 +149,10 @@ class ONN(nn.Module):
                 self.max_num_hidden_layers, len(X_data), 1), self.forward(X_data)), 0), dim=1).cpu().numpy()
 
     def predict(self, X_data):
-        return self.predict_(X_data)
+        pred = self.predict_(X_data)
+        if self.use_exploration and np.random.uniform() < self.e:
+            removed_arms = self.arms_values.copy()
+            removed_arms.remove(pred)
+            return random.choice(removed_arms)
+
+        return pred
