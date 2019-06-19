@@ -9,7 +9,7 @@ from torch.nn.parameter import Parameter
 
 class ONN(nn.Module):
     def __init__(self, features_size, max_num_hidden_layers, qtd_neuron_per_hidden_layer, n_classes, batch_size=1,
-                 b=0.99, n=0.01, s=0.2, e=0.5, use_cuda=False, use_exploration=False):
+                 b=0.99, n=0.01, s=0.2, use_cuda=False):
         super(ONN, self).__init__()
 
         if torch.cuda.is_available() and use_cuda:
@@ -22,12 +22,9 @@ class ONN(nn.Module):
         self.qtd_neuron_per_hidden_layer = qtd_neuron_per_hidden_layer
         self.n_classes = n_classes
         self.batch_size = batch_size
-        self.b = Parameter(torch.tensor(b)).to(self.device)
-        self.n = Parameter(torch.tensor(n)).to(self.device)
-        self.s = Parameter(torch.tensor(s)).to(self.device)
-        self.e = Parameter(torch.tensor(e)).to(self.device)
-        self.arms_values = np.arange(n_classes).tolist()
-        self.use_exploration = use_exploration
+        self.b = Parameter(torch.tensor(b), requires_grad=False).to(self.device)
+        self.n = Parameter(torch.tensor(n), requires_grad=False).to(self.device)
+        self.s = Parameter(torch.tensor(s), requires_grad=False).to(self.device)
 
         self.hidden_layers = []
         self.output_layers = []
@@ -43,7 +40,8 @@ class ONN(nn.Module):
         self.hidden_layers = nn.ModuleList(self.hidden_layers).to(self.device)
         self.output_layers = nn.ModuleList(self.output_layers).to(self.device)
 
-        self.alpha = Parameter(torch.Tensor(self.max_num_hidden_layers).fill_(1 / (self.max_num_hidden_layers + 1))).to(
+        self.alpha = Parameter(torch.Tensor(self.max_num_hidden_layers).fill_(1 / (self.max_num_hidden_layers + 1)),
+                               requires_grad=False).to(
             self.device)
 
         self.loss_array = []
@@ -89,7 +87,7 @@ class ONN(nn.Module):
 
         z_t = torch.sum(self.alpha)
 
-        self.alpha = Parameter(self.alpha / z_t).to(self.device)
+        self.alpha = Parameter(self.alpha / z_t, requires_grad=False).to(self.device)
 
         if show_loss:
             real_output = torch.sum(torch.mul(
@@ -150,12 +148,33 @@ class ONN(nn.Module):
 
     def predict(self, X_data):
         pred = self.predict_(X_data)
-        if self.use_exploration and np.random.uniform() < self.e and self.batch_size == 1:
-            removed_arms = self.arms_values.copy()
-            removed_arms.remove(pred[0])
-            return random.choice(removed_arms)
-
-        if self.batch_size == 1:
-            return pred[0]
-
         return pred
+
+
+class ONN_THS(ONN):
+    def __init__(self, features_size, max_num_hidden_layers, qtd_neuron_per_hidden_layer, n_classes, b=0.99, n=0.01,
+                 s=0.2, e=[0.5, 0.35, 0.2, 0.1], use_cuda=False):
+        super().__init__(features_size, max_num_hidden_layers, qtd_neuron_per_hidden_layer, n_classes, b=b, n=n, s=s,
+                         use_cuda=use_cuda)
+        self.e = e
+        self.arms_values = np.arange(n_classes).tolist()
+        self.n_impressions = np.ones(len(e))
+        self.n_rewards = np.ones(len(e))
+
+    def partial_fit(self, X_data, Y_data, exp_factor, show_loss=True):
+        self.partial_fit_(X_data, Y_data, show_loss)
+        self.n_rewards[exp_factor] += 1
+
+    def predict(self, X_data):
+        pred = self.predict_(X_data)[0]
+        rewards_0 = self.n_impressions - self.n_rewards
+        theta_value = np.random.beta(self.n_rewards, rewards_0 + 1)
+        ranked_arms = np.flip(np.argsort(theta_value), axis=0)
+        chosen_arm = ranked_arms[0]
+        self.n_impressions[chosen_arm] += 1
+        if np.random.uniform() < self.e[chosen_arm]:
+            removed_arms = self.arms_values.copy()
+            removed_arms.remove(pred)
+            return random.choice(removed_arms), chosen_arm
+
+        return pred, chosen_arm
