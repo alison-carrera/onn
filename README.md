@@ -34,9 +34,9 @@ Predictions -- array([1, 0])
 
 # Non-linear Contextual Bandit Algorithm (ONN_THS)
 
-The ONN_THS acts like a non-linear contextual bandit (a reinforcement learning algorithm). This algorithm works with the non-linear exploitation factor (ONN) plus an exploration factor provided by Thompsom Sampling algorithm. The ONN_THS works with 'select' and 'reward' actions. For more detailed example, please look at the jupyter notebook file in this repository.
+The ONN_THS acts like a non-linear contextual bandit (a reinforcement learning algorithm). This algorithm works with the non-linear exploitation factor (ONN) plus an exploration factor provided by Thompson Sampling algorithm. The ONN_THS works with 'select' and 'reward' actions. For more detailed examples, please look at the jupyter notebook file in this repository.
 
-The great thing about this algoroithm is that it can be used in a online manner and it has a non-linear exploitation. The algorithm can learn differents kind of data in a reinforcement learning way.
+The great thing about this algorithm is that it can be used in an online manner and it has a non-linear exploitation. This algorithm can learn different kind of data in a reinforcement learning way.
 
 ## How to use
 ```python
@@ -60,3 +60,4 @@ onn_network.partial_fit(np.asarray([[0.1, 0.2]]), np.asarray([arm_selected]), ex
 
 ## References
 - [Online Deep Learning: Learning Deep Neural Networks on the Fly](https://arxiv.org/abs/1711.03705)
+- [A Survey of Online Experiment Design with the Stochastic Multi-Armed Bandit](https://arxiv.org/pdf/1510.00757.pdf)
