@@ -153,7 +153,7 @@ class ONN(nn.Module):
 
 class ONN_THS(ONN):
     def __init__(self, features_size, max_num_hidden_layers, qtd_neuron_per_hidden_layer, n_classes, b=0.99, n=0.01,
-                 s=0.2, e=[0.5, 0.35, 0.2, 0.1], use_cuda=False):
+                 s=0.2, e=[0.5, 0.35, 0.2, 0.1, 0.05], use_cuda=False):
         super().__init__(features_size, max_num_hidden_layers, qtd_neuron_per_hidden_layer, n_classes, b=b, n=n, s=s,
                          use_cuda=use_cuda)
         self.e = e
