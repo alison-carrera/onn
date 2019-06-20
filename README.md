@@ -10,6 +10,7 @@ pip install onn
 ## How to use
 ```python
 #Importing Library
+import numpy as np
 from onn.OnlineNeuralNetwork import ONN
 
 #Starting a neural network with feature size of 2, hidden layers expansible until 5, number of neuron per hidden layer = 10 #and two classes.
@@ -30,6 +31,29 @@ Predictions -- array([1, 0])
 
 - The algortihm works with batch now. (It is not recommended because this is an online approach. It is useful for experimentation.)
 - The algorithm can use CUDA if available. (If the network is very small, it is not recommended. The CPU will process more fast.)
+
+# Non-linear Contextual Bandit Algorithm (ONN_THS)
+
+The ONN_THS acts like a non-linear contextual bandit (a reinforcement learning algorithm). This algorithm works with the non-linear exploitation factor (ONN) plus an exploration factor provided by Thompsom Sampling algorithm. The ONN_THS works with 'select' and 'reward' actions. For more detailed example, please look at the jupyter notebook file in this repository.
+
+The great thing about this algoroithm is that it can be used in a online manner and it has a non-linear exploitation. The algorithm can learn differents kind of data in a reinforcement learning way.
+
+## How to use
+```python
+#Importing Library
+import numpy as np
+from onn.OnlineNeuralNetwork import ONN_THS
+
+#Starting a neural network with feature size of 2, hidden layers expansible until 5, number of neuron per hidden layer = 10 #and two classes.
+onn_network = ONN_THS(features_size=2, max_num_hidden_layers=5, qtd_neuron_per_hidden_layer=10, n_classes=2)
+
+#Select an action
+arm_selected, exploration_factor = onn_network.predict(np.asarray([[0.1, 0.2]]))
+
+#Reward an action
+onn_network.partial_fit(np.asarray([[0.1, 0.2]]), np.asarray([arm_selected]), exploration_factor)
+
+```
 
 ## Contributors
 - [Alison de Andrade Carrera](https://github.com/alison-carrera)
