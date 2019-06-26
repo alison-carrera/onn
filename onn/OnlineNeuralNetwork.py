@@ -1,3 +1,5 @@
+import collections
+import json
 import random
 
 import numpy as np
@@ -149,6 +151,21 @@ class ONN(nn.Module):
     def predict(self, X_data):
         pred = self.predict_(X_data)
         return pred
+
+    def export_params_to_json(self):
+        state_dict = self.state_dict()
+        params_gp = {}
+        for key, tensor in state_dict.items():
+            params_gp[key] = tensor.cpu().numpy().tolist()
+
+        return json.dumps(params_gp)
+
+    def load_params_from_json(self, json_data):
+        params = json.loads(json_data)
+        o_dict = collections.OrderedDict()
+        for key, tensor in params.items():
+            o_dict[key] = torch.tensor(tensor).to(self.device)
+        self.load_state_dict(o_dict)
 
 
 class ONN_THS(ONN):
