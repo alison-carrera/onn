@@ -185,7 +185,8 @@ class ONN_THS(ONN):
     def predict(self, X_data):
         pred = self.predict_(X_data)[0]
         rewards_0 = self.n_impressions - self.n_rewards
-        theta_value = np.random.beta(self.n_rewards, rewards_0 + 1)
+        rewards_0[rewards_0 <= 0] = 1
+        theta_value = np.random.beta(self.n_rewards, rewards_0)
         ranked_arms = np.flip(np.argsort(theta_value), axis=0)
         chosen_arm = ranked_arms[0].item()
         self.n_impressions[chosen_arm] += 1
