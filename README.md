@@ -34,7 +34,7 @@ Predictions -- array([1, 0])
 
 # Non-linear Contextual Bandit Algorithm (ONN_THS)
 
-The ONN_THS acts like a non-linear contextual bandit (a reinforcement learning algorithm). This algorithm works with the non-linear exploitation factor (ONN) plus an exploration factor provided by Thompson Sampling algorithm. The ONN_THS works with 'select' and 'reward' actions. For more detailed examples, please look at the jupyter notebook file in this repository.
+The ONN_THS acts like a non-linear contextual bandit (a reinforcement learning algorithm). This algorithm works with the non-linear exploitation factor (ONN) plus an exploration factor provided by Thompson Sampling algorithm. The ONN_THS works with 'select' and 'reward' actions. For more detailed examples, please look at the jupyter notebook file in this repository. This algorithm was created by me to solve a problem in the company I work.
 
 The great thing about this algorithm is that it can be used in an online manner and it has a non-linear exploitation. This algorithm can learn different kind of data in a reinforcement learning way.
 
