@@ -57,6 +57,8 @@ onn_network.partial_fit(np.asarray([[0.1, 0.2]]), np.asarray([arm_selected]), ex
 
 ## Contributors
 - [Alison de Andrade Carrera](https://github.com/alison-carrera)
+- [Fábio Silva Vilas Boas](https://github.com/fabiosvb)
+- [Daniel Araújo](https://github.com/danielcoaraujo)
 
 ## References
 - [Online Deep Learning: Learning Deep Neural Networks on the Fly](https://arxiv.org/abs/1711.03705)
