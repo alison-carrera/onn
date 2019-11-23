@@ -79,27 +79,28 @@ class ONN(nn.Module):
 
         w = []
         b = []
+        
+        with torch.no_grad():
+            for i in range(len(losses_per_layer)):
+                losses_per_layer[i].backward(retain_graph=True)
+                self.output_layers[i].weight.data -= self.n * \
+                    self.alpha[i] * self.output_layers[i].weight.grad.data
+                self.output_layers[i].bias.data -= self.n * \
+                    self.alpha[i] * self.output_layers[i].bias.grad.data
+                w.append(self.alpha[i] * self.hidden_layers[i].weight.grad.data)
+                b.append(self.alpha[i] * self.hidden_layers[i].bias.grad.data)
+                self.zero_grad()
 
-        for i in range(len(losses_per_layer)):
-            losses_per_layer[i].backward(retain_graph=True)
-            self.output_layers[i].weight.data -= self.n * \
-                self.alpha[i] * self.output_layers[i].weight.grad.data
-            self.output_layers[i].bias.data -= self.n * \
-                self.alpha[i] * self.output_layers[i].bias.grad.data
-            w.append(self.alpha[i] * self.hidden_layers[i].weight.grad.data)
-            b.append(self.alpha[i] * self.hidden_layers[i].bias.grad.data)
-            self.zero_grad()
+            for i in range(1, len(losses_per_layer)):
+                self.hidden_layers[i].weight.data -= self.n * \
+                    torch.sum(torch.cat(w[i:]))
+                self.hidden_layers[i].bias.data -= self.n * \
+                    torch.sum(torch.cat(b[i:]))
 
-        for i in range(1, len(losses_per_layer)):
-            self.hidden_layers[i].weight.data -= self.n * \
-                torch.sum(torch.cat(w[i:]))
-            self.hidden_layers[i].bias.data -= self.n * \
-                torch.sum(torch.cat(b[i:]))
-
-        for i in range(len(losses_per_layer)):
-            self.alpha[i] *= torch.pow(self.b, losses_per_layer[i])
-            self.alpha[i] = torch.max(
-                self.alpha[i], self.s / self.max_num_hidden_layers)
+            for i in range(len(losses_per_layer)):
+                self.alpha[i] *= torch.pow(self.b, losses_per_layer[i])
+                self.alpha[i] = torch.max(
+                    self.alpha[i], self.s / self.max_num_hidden_layers)
 
         z_t = torch.sum(self.alpha)
 
