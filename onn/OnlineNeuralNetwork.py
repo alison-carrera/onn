@@ -77,24 +77,29 @@ class ONN(nn.Module):
                 self.batch_size).long())
             losses_per_layer.append(loss)
 
-        w = []
-        b = []
+        w = [None] * len(losses_per_layer)
+        b = [None] * len(losses_per_layer)
 
         for i in range(len(losses_per_layer)):
             losses_per_layer[i].backward(retain_graph=True)
             self.output_layers[i].weight.data -= self.n * \
-                self.alpha[i] * self.output_layers[i].weight.grad.data
+                                                 self.alpha[i] * self.output_layers[i].weight.grad.data
             self.output_layers[i].bias.data -= self.n * \
-                self.alpha[i] * self.output_layers[i].bias.grad.data
-            w.append(self.alpha[i] * self.hidden_layers[i].weight.grad.data)
-            b.append(self.alpha[i] * self.hidden_layers[i].bias.grad.data)
+                                               self.alpha[i] * self.output_layers[i].bias.grad.data
+
+            for j in range(i + 1):
+                if w[j] is None:
+                    w[j] = self.alpha[i] * self.hidden_layers[j].weight.grad.data
+                    b[j] = self.alpha[i] * self.hidden_layers[j].bias.grad.data
+                else:
+                    w[j] += self.alpha[i] * self.hidden_layers[j].weight.grad.data
+                    b[j] += self.alpha[i] * self.hidden_layers[j].bias.grad.data
+
             self.zero_grad()
 
-        for i in range(1, len(losses_per_layer)):
-            self.hidden_layers[i].weight.data -= self.n * \
-                torch.sum(torch.cat(w[i:]))
-            self.hidden_layers[i].bias.data -= self.n * \
-                torch.sum(torch.cat(b[i:]))
+        for i in range(len(losses_per_layer)):
+            self.hidden_layers[i].weight.data -= self.n * w[i]
+            self.hidden_layers[i].bias.data -= self.n * b[i]
 
         for i in range(len(losses_per_layer)):
             self.alpha[i] *= torch.pow(self.b, losses_per_layer[i])
